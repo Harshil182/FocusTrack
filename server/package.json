@@ -1,0 +1,36 @@
+{
+  "name": "focustrack-server",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Express + MongoDB REST API for FocusTrack",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --runInBand"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongoose": "^8.5.2",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.4.0",
+    "express-validator": "^7.2.0",
+    "morgan": "^1.10.0",
+    "cookie-parser": "^1.4.6",
+    "compression": "^1.7.4",
+    "pdfkit": "^0.15.0",
+    "exceljs": "^4.4.0",
+    "json2csv": "^6.0.0-alpha.2",
+    "node-cron": "^3.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4",
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}

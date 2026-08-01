@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "FocusTrack - Time Tracking & Productivity Analytics",
+  "version": "1.0.0",
+  "description": "Automatically tracks website usage and productivity in the background.",
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background/background.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "storage",
+    "idle",
+    "alarms",
+    "notifications"
+  ],
+
+  "host_permissions": ["http://localhost:5000/*", "<all_urls>"],
+
+  "options_page": "popup/popup.html"
+}

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusTrack</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <header>
+        <img
+          src="../icons/icon48.png"
+          alt="FocusTrack"
+          width="24"
+          height="24"
+        />
+
+        <h1>FocusTrack</h1>
+      </header>
+
+      <!-- Login View -->
+      <section id="loginView" class="view">
+        <input id="email" type="email" placeholder="Email" />
+
+        <input id="password" type="password" placeholder="Password" />
+
+        <button id="loginBtn">Log In</button>
+
+        <p id="loginError" class="error"></p>
+      </section>
+
+      <!-- Dashboard View -->
+      <section id="dashboardView" class="view hidden">
+        <div class="stat">
+          <span class="stat-label"> Today's Screen Time </span>
+
+          <span class="stat-value" id="totalTime"> 0h 0m </span>
+        </div>
+
+        <div class="stat">
+          <span class="stat-label"> Productive Time </span>
+
+          <span class="stat-value" id="productiveTime"> 0h 0m </span>
+        </div>
+
+        <a
+          id="openDashboard"
+          href="http://localhost:5173/dashboard"
+          target="_blank"
+          rel="noopener"
+        >
+          Open Full Dashboard
+        </a>
+
+        <button id="logoutBtn" class="secondary">Log Out</button>
+      </section>
+    </div>
+
+    <!-- JS -->
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
