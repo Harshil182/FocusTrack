@@ -46,7 +46,6 @@ This project is being built module by module:
 ```bash
 cd server
 npm install
-cp .env.example .env
 npm run dev
 ```
 
@@ -54,7 +53,6 @@ npm run dev
 ```bash
 cd client
 npm install
-cp .env.example .env
 npm run dev
 ```
 
