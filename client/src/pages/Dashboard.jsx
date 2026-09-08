@@ -36,7 +36,7 @@ export default function Dashboard() {
     .slice()
     .sort((a, b) => b.durationSeconds - a.durationSeconds)
     .slice(0, 6)
-    .map((e) => ({ domain: e.domain, minutes: Math.round(e.durationSeconds / 60) }));
+    .map((e) => ({ domain: e.domain, minutes: Math.max(1, Math.round(e.durationSeconds / 60)) }));
 
   return (
     <div className="space-y-6">

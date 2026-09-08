@@ -1,5 +1,6 @@
 // Formats a duration in seconds as "Xh Ym" — used throughout the dashboard.
 export function formatDuration(seconds = 0) {
+  if (seconds < 60) return `${Math.round(seconds)}s`;
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   if (h === 0) return `${m}m`;

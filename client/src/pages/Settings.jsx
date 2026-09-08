@@ -54,15 +54,15 @@ export default function Settings() {
       </Card>
 
       <Card title="Notifications">
-        <Toggle checked={!!notif.productivityReminder} onChange={(v) => setNotif({ ...notif, productivityReminder: v })} label="Productivity Reminder" />
-        <Toggle checked={!!notif.breakReminder} onChange={(v) => setNotif({ ...notif, breakReminder: v })} label="Break Reminder" />
-        <Toggle checked={!!notif.goalCompletion} onChange={(v) => setNotif({ ...notif, goalCompletion: v })} label="Goal Completion Notification" />
+        <Toggle compact checked={!!notif.productivityReminder} onChange={(v) => setNotif({ ...notif, productivityReminder: v })} label="Productivity Reminder" />
+        <Toggle compact checked={!!notif.breakReminder} onChange={(v) => setNotif({ ...notif, breakReminder: v })} label="Break Reminder" />
+        <Toggle compact checked={!!notif.goalCompletion} onChange={(v) => setNotif({ ...notif, goalCompletion: v })} label="Goal Completion Notification" />
       </Card>
 
       <Card title="Website Categories">
         <div className="space-y-1">
           {categories.map((c) => (
-            <Toggle key={c._id} checked={c.isProductive} onChange={() => toggleCategoryProductive(c)} label={c.name} />
+            <Toggle compact key={c._id} checked={c.isProductive} onChange={() => toggleCategoryProductive(c)} label={c.name} />
           ))}
         </div>
       </Card>

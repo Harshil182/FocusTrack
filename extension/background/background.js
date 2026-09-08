@@ -4,7 +4,6 @@
 //   2. Track active time while the browser is not idle
 //   3. Buffer tracking data locally, then sync it to the backend
 //   4. Detect browser startup/shutdown to close any open session
-console.log("MY NEW BACKGROUND FILE LOADED");
 import { storage, STORAGE_KEYS } from "../utils/storage.js";
 import { api } from "../utils/api.js";
 
@@ -37,20 +36,53 @@ async function endCurrentSession() {
     const { [STORAGE_KEYS.PENDING_SYNC]: pending = [] } = await storage.get(
       STORAGE_KEYS.PENDING_SYNC,
     );
-    pending.push({
-      domain: currentSession.domain,
-      date: new Date().toISOString().slice(0, 10), // "YYYY-MM-DD"
-      durationSeconds,
-    });
+    pending.push(...splitSessionByDate(currentSession));
     await storage.set({ [STORAGE_KEYS.PENDING_SYNC]: pending });
   }
 
   currentSession = null;
+  await storage.remove(STORAGE_KEYS.ACTIVE_SESSION);
+}
+
+function splitSessionByDate(session) {
+  const entries = [];
+  let cursor = session.startedAt;
+  const end = Date.now();
+
+  while (cursor < end) {
+    const nextMidnight = new Date(cursor);
+    nextMidnight.setHours(24, 0, 0, 0);
+    const segmentEnd = Math.min(nextMidnight.getTime(), end);
+    const durationSeconds = Math.round((segmentEnd - cursor) / 1000);
+    if (durationSeconds > 0) {
+      entries.push({
+        domain: session.domain,
+        date: new Date(cursor).toISOString().slice(0, 10),
+        durationSeconds,
+      });
+    }
+    cursor = segmentEnd;
+  }
+
+  return entries;
 }
 
 // Starts a new session for the given domain/tab.
-function startSession(domain, tabId) {
+async function startSession(domain, tabId) {
   currentSession = { domain, tabId, startedAt: Date.now() };
+  await storage.set({ [STORAGE_KEYS.ACTIVE_SESSION]: currentSession });
+}
+
+async function restoreSession() {
+  const { [STORAGE_KEYS.ACTIVE_SESSION]: savedSession } = await storage.get(
+    STORAGE_KEYS.ACTIVE_SESSION,
+  );
+  if (savedSession?.domain && savedSession?.startedAt) currentSession = savedSession;
+}
+
+async function startTrackingCurrentTab() {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  await handleActiveTabChange(tab);
 }
 
 // Called whenever the active tab or its URL changes.
@@ -60,7 +92,7 @@ async function handleActiveTabChange(tab) {
   if (isIdle || !tab?.url) return;
 
   const domain = getDomainFromUrl(tab.url);
-  if (domain) startSession(domain, tab.id);
+  if (domain) await startSession(domain, tab.id);
 }
 
 // --- Chrome event listeners ---
@@ -102,24 +134,27 @@ chrome.idle.onStateChanged.addListener(async (state) => {
 });
 
 // Browser startup/shutdown.
-chrome.runtime.onStartup.addListener(() => {
+chrome.runtime.onStartup.addListener(async () => {
+  await restoreSession();
+  await startTrackingCurrentTab();
   console.log("[FocusTrack] Browser started — tracking resumed.");
 });
 
 // chrome.runtime has no reliable "onShutdown", so we flush on suspend instead.
-chrome.runtime.onSuspend.addListener(() => {
-  endCurrentSession();
+chrome.runtime.onSuspend.addListener(async () => {
+  await endCurrentSession();
 });
 
 // --- Periodic sync to backend via chrome.alarms ---
 
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
   chrome.alarms.create("focustrack-sync", {
     periodInMinutes: SYNC_INTERVAL_MINUTES,
   });
   console.log(
     "[FocusTrack] Background service worker installed. Sync alarm scheduled.",
   );
+  await startTrackingCurrentTab();
 });
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {

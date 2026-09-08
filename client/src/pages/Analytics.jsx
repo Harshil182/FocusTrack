@@ -19,14 +19,20 @@ export default function Analytics() {
   const [rangeDays, setRangeDays] = useState(7);
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setLoading(true);
+    setError("");
     const end = format(new Date(), "yyyy-MM-dd");
     const start = format(subDays(new Date(), rangeDays), "yyyy-MM-dd");
     trackingService
       .getByRange(start, end)
       .then(({ data }) => setEntries(data))
+      .catch((err) => {
+        setEntries([]);
+        setError(err.message || "Unable to load analytics.");
+      })
       .finally(() => setLoading(false));
   }, [rangeDays]);
 
@@ -37,9 +43,9 @@ export default function Analytics() {
   });
   const trendData = Object.entries(byDate)
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, seconds]) => ({ date: date.slice(5), minutes: Math.round(seconds / 60) }));
+    .map(([date, seconds]) => ({ date: date.slice(5), minutes: Math.max(1, Math.round(seconds / 60)) }));
 
-  const heatmapData = Object.fromEntries(Object.entries(byDate).map(([d, s]) => [d, Math.round(s / 60)]));
+  const heatmapData = Object.fromEntries(Object.entries(byDate).map(([d, s]) => [d, Math.max(1, Math.round(s / 60))]));
 
   // Aggregate minutes per domain for the bar chart.
   const byDomain = {};
@@ -49,7 +55,7 @@ export default function Analytics() {
   const topSites = Object.entries(byDomain)
     .sort(([, a], [, b]) => b - a)
     .slice(0, 8)
-    .map(([domain, seconds]) => ({ domain, minutes: Math.round(seconds / 60) }));
+    .map(([domain, seconds]) => ({ domain, minutes: Math.max(1, Math.round(seconds / 60)) }));
 
   return (
     <div className="space-y-6">
@@ -76,6 +82,7 @@ export default function Analytics() {
         </div>
       ) : (
         <>
+          {error && <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
           <Card title="Screen Time Trend">
             {trendData.length > 0 ? <TrendLineChart data={trendData} /> : <p className="py-10 text-center text-sm text-gray-400">No data for this range.</p>}
           </Card>

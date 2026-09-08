@@ -2,9 +2,21 @@ import Tracking from "../models/Tracking.js";
 import Category from "../models/Category.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
+const FALLBACK_CATEGORIES = [
+  { name: "Social Media", patterns: [/facebook\.com$/, /twitter\.com$/, /instagram\.com$/, /tiktok\.com$/, /linkedin\.com$/] },
+  { name: "Programming", patterns: [/github\.com$/, /gitlab\.com$/, /stackoverflow\.com$/, /notion\.so$/] },
+  { name: "News", patterns: [/nytimes\.com$/, /cnn\.com$/, /bbc\.co/, /theguardian\.com/] },
+  { name: "Entertainment", patterns: [/youtube\.com$/, /vimeo\.com$/, /twitch\.tv$/] },
+  { name: "Shopping", patterns: [/amazon\.com$/, /ebay\.com$/, /etsy\.com$/] },
+];
+
 // Given a domain, finds the user's matching category (if any configured).
 async function resolveCategory(userId, domain) {
-  const category = await Category.findOne({ user: userId, domains: domain });
+  let category = await Category.findOne({ user: userId, domains: domain });
+  if (!category) {
+    const fallback = FALLBACK_CATEGORIES.find(({ patterns }) => patterns.some((pattern) => pattern.test(domain)));
+    if (fallback) category = await Category.findOne({ user: userId, name: fallback.name });
+  }
   return category?._id || null;
 }
 
@@ -27,7 +39,7 @@ export const syncTracking = asyncHandler(async (req, res) => {
       { user: userId, domain, date },
       {
         $inc: { durationSeconds, visitCount: 1 },
-        $setOnInsert: { category },
+        ...(category ? { $set: { category } } : {}),
       },
       { upsert: true, new: true }
     );
