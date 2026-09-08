@@ -8,10 +8,11 @@ import { logger } from "./utils/logger.js";
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB first, then start listening.
-// This prevents the server from accepting requests before the DB is ready.
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    logger.info(`FocusTrack API running on http://localhost:${PORT} [${process.env.NODE_ENV || "development"}]`);
+  app.listen(PORT, "0.0.0.0", () => {
+    logger.info(
+      `FocusTrack API running on port ${PORT} [${process.env.NODE_ENV || "development"}]`
+    );
   });
 });
 

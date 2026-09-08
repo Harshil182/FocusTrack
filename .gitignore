@@ -2,13 +2,17 @@
 node_modules/
 **/node_modules/
 
-# Environment variables
+# Environment Variables
 .env
 .env.local
+.env.development
 .env.production
 **/.env
+**/.env.local
+**/.env.development
+**/.env.production
 
-# Build output
+# Build Output
 client/dist/
 client/build/
 server/dist/
@@ -17,20 +21,29 @@ server/dist/
 logs/
 *.log
 npm-debug.log*
-server/logs/*.log
+yarn-debug.log*
+yarn-error.log*
+server/logs/
 
-# Editor/OS
+# Testing
+coverage/
+.nyc_output/
+
+# Editor / OS
 .vscode/
+.idea/
 .DS_Store
 Thumbs.db
 
-# Chrome extension packed output
+# Chrome Extension Packed Files
 extension/*.zip
 extension/*.crx
 extension/*.pem
 
-# Testing
-coverage/
+# Vercel
+.vercel/
 
-# Misc
+# Temporary / Local Files
 *.local
+*.tmp
+*.temp
