@@ -41,7 +41,12 @@
     "notifications"
   ],
 
-  "host_permissions": ["http://localhost:5000/*", "<all_urls>"],
+  "host_permissions": [
+    "https://focustrack-934s.onrender.com/*",
+    "http://localhost:5000/*",
+    "http://localhost:5002/*",
+    "<all_urls>"
+  ],
 
   "options_page": "popup/popup.html"
 }
