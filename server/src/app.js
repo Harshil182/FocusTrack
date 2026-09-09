@@ -39,6 +39,11 @@ app.use(compression());
 app.use(morgan(process.env.NODE_ENV === "development" ? "dev" : "combined"));
 app.use("/api", apiLimiter);
 
+// Render and other hosting providers commonly probe the service root.
+app.get("/", (req, res) => {
+  res.status(200).json({ success: true, message: "FocusTrack API is running" });
+});
+
 // ---- Routes ----
 app.use("/api/health", healthRoutes);
 app.use("/api/auth", authRoutes);
