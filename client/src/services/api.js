@@ -3,7 +3,7 @@ import axios from "axios";
 // Central Axios instance — every API call in the app goes through this
 // so base URL, auth header, and error handling live in one place.
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "https://focustrack-934s.onrender.com/api",
   withCredentials: true,
 });
 

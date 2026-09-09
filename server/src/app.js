@@ -19,6 +19,7 @@ const allowedOrigins = new Set([
   process.env.CLIENT_URL,
   "http://localhost:5173",
   "http://localhost:5174",
+  "https://focus-track-livid.vercel.app",
 ]);
 
 // ---- Security & core middleware ----
