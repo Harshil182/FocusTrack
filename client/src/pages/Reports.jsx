@@ -25,6 +25,7 @@ export default function Reports() {
       const startDate = format(subDays(new Date(), range), "yyyy-MM-dd");
 
       const blob = await reportService.exportReport({ format: format_, startDate, endDate, range: "custom" });
+      if (!(blob instanceof Blob) || blob.size === 0) throw new Error("The report was empty");
 
       // Trigger a browser download for the returned blob.
       const url = window.URL.createObjectURL(blob);
@@ -38,7 +39,18 @@ export default function Reports() {
 
       toast.success("Report downloaded");
     } catch (err) {
-      toast.error("Export failed");
+      let message = "Export failed";
+      if (err.response?.data instanceof Blob) {
+        try {
+          const error = JSON.parse(await err.response.data.text());
+          message = error.message || message;
+        } catch {
+          // Keep the generic message when the server did not return JSON.
+        }
+      } else if (err.response?.data?.message) {
+        message = err.response.data.message;
+      }
+      toast.error(message);
     } finally {
       setExporting(false);
     }

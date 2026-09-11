@@ -71,6 +71,10 @@ export const getTrackingByRange = asyncHandler(async (req, res) => {
   const query = { user: req.user._id };
   if (start && end) query.date = { $gte: start, $lte: end };
 
-  const entries = await Tracking.find(query).populate("category").sort({ date: 1 });
+  const entries = await Tracking.find(query)
+    .select("date domain durationSeconds visitCount category")
+    .populate("category", "name isProductive color")
+    .sort({ date: 1 })
+    .lean();
   res.status(200).json({ success: true, count: entries.length, data: entries });
 });

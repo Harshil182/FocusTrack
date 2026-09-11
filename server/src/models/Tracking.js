@@ -17,5 +17,6 @@ const trackingSchema = new mongoose.Schema(
 );
 
 trackingSchema.index({ user: 1, domain: 1, date: 1 }, { unique: true });
+trackingSchema.index({ user: 1, date: 1 });
 
 export default mongoose.model("Tracking", trackingSchema);

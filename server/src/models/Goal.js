@@ -17,4 +17,6 @@ const goalSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+goalSchema.index({ user: 1, isActive: 1 });
+
 export default mongoose.model("Goal", goalSchema);

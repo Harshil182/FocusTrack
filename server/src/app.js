@@ -37,6 +37,7 @@ app.use(
       return callback(new Error("Origin is not allowed by CORS"));
     },
     credentials: true,
+    exposedHeaders: ["Content-Disposition"],
   })
 );
 app.use(express.json({ limit: "1mb" }));

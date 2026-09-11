@@ -13,17 +13,27 @@ export const createGoal = asyncHandler(async (req, res) => {
 export const getGoals = asyncHandler(async (req, res) => {
   const goals = await Goal.find({ user: req.user._id, isActive: true }).populate("category");
 
-  // Attach today's progress toward each goal.
   const today = new Date().toISOString().slice(0, 10);
-  const withProgress = await Promise.all(
-    goals.map(async (goal) => {
-      const query = { user: req.user._id, date: today };
-      if (goal.category) query.category = goal.category._id;
-      const entries = await Tracking.find(query);
-      const minutesLogged = entries.reduce((sum, e) => sum + e.durationSeconds, 0) / 60;
-      return { ...goal.toObject(), progressMinutes: Math.round(minutesLogged), isComplete: minutesLogged >= goal.targetMinutes };
-    })
+  const progress = await Tracking.aggregate([
+    { $match: { user: req.user._id, date: today } },
+    { $group: { _id: "$category", seconds: { $sum: "$durationSeconds" } } },
+  ]);
+  const secondsByCategory = new Map(
+    progress.map(({ _id, seconds }) => [String(_id), seconds])
   );
+  const totalSeconds = progress.reduce((sum, item) => sum + item.seconds, 0);
+
+  const withProgress = goals.map((goal) => {
+    const seconds = goal.category
+      ? secondsByCategory.get(String(goal.category._id)) || 0
+      : totalSeconds;
+    const minutesLogged = seconds / 60;
+    return {
+      ...goal.toObject(),
+      progressMinutes: Math.round(minutesLogged),
+      isComplete: minutesLogged >= goal.targetMinutes,
+    };
+  });
 
   res.status(200).json({ success: true, data: withProgress });
 });
